@@ -153,7 +153,7 @@ class _Hemisphere(object):
         self.lam_scal = header["LAM_SCAL"]
         self.sign = header["LAM_NSGP"]  # north = 1, south = -1
 
-    def ebv(self, l: float, b: float, interpolate: bool):
+    def ebv(self, l: float, b: float, interpolate: bool) -> np.ndarray:
         # Project from galactic longitude/latitude to lambert pixels.
         # (See SFD98 or SFD data FITS header).
         x = (
@@ -275,9 +275,9 @@ class SFDMap(object):
         """
 
         # collect kwargs
-        frame = kwargs.get("frame", "icrs")
-        unit = kwargs.get("unit", "degree")
-        interpolate = kwargs.get("interpolate", True)
+        frame: str = kwargs.get("frame", "icrs")
+        unit: str = kwargs.get("unit", "degree")
+        interpolate: bool = kwargs.get("interpolate", True)
 
         # compatibility: treat single argument 2-tuple as (RA, Dec)
         if (len(args) == 1) and (type(args[0]) is tuple) and (len(args[0]) == 2):
@@ -338,6 +338,7 @@ class SFDMap(object):
                 fname = os.path.join(self.mapdir, self.fnames[pole])
                 self.hemispheres[pole] = _Hemisphere(fname, self.scaling)
 
+            # assert isinstance(self.hemispheres[pole], _Hemisphere)
             values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask], interpolate)
 
         if return_scalar:
