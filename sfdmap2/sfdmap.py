@@ -5,16 +5,19 @@ Dust maps must be downloaded separately."""
 
 import os
 
+from typing import Any, Tuple, Optional, Union, Dict
+from collections.abc import Iterable
+
 import numpy as np
 
 # require a FITS reader of some sort.
 try:
-    import fitsio
+    import fitsio  # type: ignore
 
     getdata = fitsio.read
 except ImportError:
     try:
-        from astropy.io.fits import getdata
+        from astropy.io.fits import getdata  # type: ignore
     except ImportError:
         # If we don't have either reader, raise an error only when the function
         # is called. This is so that we can import the module with just numpy
@@ -27,17 +30,7 @@ except ImportError:
 
 
 __all__ = ["SFDMap", "ebv"]
-__version__ = "0.1.0"
-
-
-def _isiterable(obj):
-    """Returns `True` if the given object is iterable."""
-    try:
-        iter(obj)
-        return True
-    except TypeError:
-        return False
-
+__version__ = "0.2.1"
 
 # -----------------------------------------------------------------------------
 # Coordinate conversion
@@ -50,19 +43,19 @@ def _isiterable(obj):
 
 
 # Create rotation matrix about a given axis (x, y, z)
-def zrotmat(angle):
+def zrotmat(angle: float) -> np.ndarray:
     s = np.sin(angle)
     c = np.cos(angle)
     return np.array(((c, s, 0), (-s, c, 0), (0, 0, 1)))
 
 
-def yrotmat(angle):
+def yrotmat(angle: float) -> np.ndarray:
     s = np.sin(angle)
     c = np.cos(angle)
     return np.array(((c, 0, -s), (0, 1, 0), (s, 0, c)))
 
 
-def xrotmat(angle):
+def xrotmat(angle: float) -> np.ndarray:
     s = np.sin(angle)
     c = np.cos(angle)
     return np.array(((1, 0, 0), (0, c, s), (0, -s, c)))
@@ -95,22 +88,22 @@ ICRS_TO_GAL = np.dot(FK5J2000_TO_GAL, ICRS_TO_FK5J2000)
 
 
 # (lon, lat) -> [x, y, z] unit vector
-def coords2cart(lon, lat):
+def coords2cart(lon: float, lat: float) -> np.ndarray:
     coslat = np.cos(lat)
     return np.array((coslat * np.cos(lon), coslat * np.sin(lon), np.sin(lat)))
 
 
 # [x, y, z] unit vector -> (lon, lat)
-def cart2coords(xyz):
+def cart2coords(xyz: Tuple[float, float, float]) -> Tuple[np.ndarray, np.ndarray]:
     x, y, z = xyz
     return np.arctan2(y, x), np.arctan2(z, np.sqrt(x * x + y * y))
 
 
-def _icrs_to_gal(lon, lat):
+def _icrs_to_gal(lon: float, lat: float) -> Tuple[np.ndarray, np.ndarray]:
     return cart2coords(np.dot(ICRS_TO_GAL, coords2cart(lon, lat)))
 
 
-def _fk5j2000_to_gal(lon, lat):
+def _fk5j2000_to_gal(lon: float, lat: float) -> Tuple[np.ndarray, np.ndarray]:
     return cart2coords(np.dot(FK5J2000_TO_GAL, coords2cart(lon, lat)))
 
 
@@ -152,7 +145,7 @@ def _bilinear_interpolate(data, y, x):
 class _Hemisphere(object):
     """Represents one of the hemispheres (in a single fle)"""
 
-    def __init__(self, fname, scaling):
+    def __init__(self, fname: str, scaling: float):
         self.data, header = getdata(fname, header=True)
         self.data *= scaling
         self.crpix1 = header["CRPIX1"]
@@ -160,7 +153,7 @@ class _Hemisphere(object):
         self.lam_scal = header["LAM_SCAL"]
         self.sign = header["LAM_NSGP"]  # north = 1, south = -1
 
-    def ebv(self, l, b, interpolate):
+    def ebv(self, l: float, b: float, interpolate: bool):
         # Project from galactic longitude/latitude to lambert pixels.
         # (See SFD98 or SFD data FITS header).
         x = (
@@ -222,10 +215,10 @@ class SFDMap(object):
 
     def __init__(
         self,
-        mapdir=None,
-        north="SFD_dust_4096_ngp.fits",
-        south="SFD_dust_4096_sgp.fits",
-        scaling=0.86,
+        mapdir: Optional[str] = None,
+        north: str = "SFD_dust_4096_ngp.fits",
+        south: str = "SFD_dust_4096_sgp.fits",
+        scaling: float = 0.86,
     ):
         if mapdir is None:
             mapdir = os.environ.get("SFD_DIR", "")
@@ -235,11 +228,14 @@ class SFDMap(object):
 
         # don't load maps initially
         self.fnames = {"north": north, "south": south}
-        self.hemispheres = {"north": None, "south": None}
+        self.hemispheres: Dict[str, Optional[_Hemisphere]] = {
+            "north": None,
+            "south": None,
+        }
 
         self.scaling = scaling
 
-    def ebv(self, *args, **kwargs):
+    def ebv(self, *args, **kwargs) -> Union[np.ndarray, np.float64]:
         """Get E(B-V) value(s) at given coordinate(s).
 
         Parameters
@@ -325,7 +321,7 @@ class SFDMap(object):
 
         # Check if l, b are scalar. If so, convert to 1-d arrays.
         return_scalar = False
-        if not _isiterable(l):
+        if not isinstance(l, Iterable):
             return_scalar = True
             l, b = np.array([l]), np.array([b])
 
@@ -349,13 +345,11 @@ class SFDMap(object):
         else:
             return values
 
-    def __repr__(self):
-        return "SFDMap(mapdir={!r}, north={!r}, south={!r}, scaling={!r})".format(
-            self.mapdir, self.fnames["north"], self.fnames["south"], self.scaling
-        )
+    def __repr__(self) -> str:
+        return f"SFDMap(mapdir={repr(self.mapdir)}, north={repr(self.fnames['north'])}, south={repr(self.fnames['south'])}, scaling={repr(self.scaling)})"
 
 
-def ebv(*args, **kwargs):
+def ebv(*args, **kwargs) -> Union[np.ndarray, np.float64]:
     """Convenience function, equivalent to SFDMap().ebv(*args)"""
 
     m = SFDMap(
