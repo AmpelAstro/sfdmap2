@@ -339,7 +339,9 @@ class SFDMap(object):
                 self.hemispheres[pole] = _Hemisphere(fname, self.scaling)
 
             # assert isinstance(self.hemispheres[pole], _Hemisphere)
-            values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask], interpolate)
+            half_sphere = self.hemispheres[pole]
+            if half_sphere is not None:
+                values[mask] = half_sphere.ebv(l[mask], b[mask], interpolate)
 
         if return_scalar:
             return values[0]
