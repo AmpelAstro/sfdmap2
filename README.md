@@ -1,4 +1,5 @@
-# sfdmap
+# sfdmap2
+This is a fork of [sfdmap](https://github.com/kbarbary/sfdmap), as the original repository is no longer maintained.
 
 [![Build Status](https://img.shields.io/travis/kbarbary/sfdmap.svg?style=flat-square)](https://travis-ci.org/kbarbary/sfdmap)
 [![Coverage Status](http://img.shields.io/coveralls/kbarbary/sfdmap.svg?style=flat-square)](https://coveralls.io/r/kbarbary/sfdmap?branch=master)
@@ -8,11 +9,11 @@ A minimal, fast, MIT-licensed Python module for getting E(B-V) values from
 [Schlegel, Finkbeiner & Davis (1998)](http://adsabs.harvard.edu/abs/1998ApJ...500..525S) dust map FITS files.
 
 ```python
->>> import sfdmap
+import sfdmap
 
->>> m = sfdmap.SFDMap()
+m = sfdmap.SFDMap()
 
->>> m.ebv(100., 40.)  # Get E(B-V) value at RA=100 degrees, Dec=40 degrees
+m.ebv(100., 40.)  # Get E(B-V) value at RA=100 degrees, Dec=40 degrees
 0.10739716819557897
 ```
 
@@ -42,10 +43,10 @@ A directory "sfddata-master" will be created. Move or rename as you like.
 #### Initialize map:
 
 ```python
->>> import sfdmap
+import sfdmap
 
->>> m = sfdmap.SFDMap('/path/to/dustmap/files')
->>> m = sfdmap.SFDMap()  # get directory from SFD_DIR environment variable
+m = sfdmap.SFDMap('/path/to/dustmap/files')
+m = sfdmap.SFDMap()  # get directory from SFD_DIR environment variable
 ```
 
 By default, a scaling of 0.86 is applied to the map values to reflect
@@ -53,20 +54,20 @@ the recalibration by Schlafly & Finkbeiner (2011). To get the original
 values, use `scaling=1.0` when constructing the map:
 
 ```python
->>> m = sfdmap.SFDMap(scaling=1.0)
+m = sfdmap.SFDMap(scaling=1.0)
 ```
 
 Get E(B-V) value at RA, Dec = 0., 0. (ICRS frame)
 
 ```python
->>> m.ebv(0., 0.)
+m.ebv(0., 0.)
 0.031814847141504288
 ```
 
 Get E(B-V) at three locations (first argument is RA, second is Dec):
 
 ```python
->>> m.ebv([0., 5., 10.], [0., 1.5, 2.1])
+m.ebv([0., 5., 10.], [0., 1.5, 2.1])
 array([ 0.03181879,  0.02374864,  0.01746732])
 ```
 
@@ -75,7 +76,7 @@ system (e.g., "J2000"). This can be changed with the `frame` and `unit`
 keywords:
 
 ```python
->>> m.ebv(1.68140, -1.0504884, frame='galactic', unit='radian')
+m.ebv(1.68140, -1.0504884, frame='galactic', unit='radian')
 0.031820329230751863
 ```
 
@@ -83,7 +84,7 @@ The dust map values are linearly interpolated by default. Change this with the
 `interpolate` keyword:
 
 ```python
->>> m.ebv(1.68140, -1.0504884, frame='galactic', unit='radian', interpolate=False)
+m.ebv(1.68140, -1.0504884, frame='galactic', unit='radian', interpolate=False)
 0.031526423990726471
 ```
 
@@ -91,11 +92,11 @@ The dust map values are linearly interpolated by default. Change this with the
 You can pass an astropy `SkyCoord` instance:
 
 ```python
->>> from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord
 
->>> coords = SkyCoord([0., 5., 10.], [0., 1.5, 2.1], frame='icrs', unit='degree')
+coords = SkyCoord([0., 5., 10.], [0., 1.5, 2.1], frame='icrs', unit='degree')
 
->>> m.ebv(coords)
+m.ebv(coords)
 array([ 0.03181879,  0.02374864,  0.01746732])
 ```
 
@@ -104,10 +105,10 @@ don't have to construct a `SFDMap` instance if you just want to query
 the map once:
 
 ```python
->>> sfdmap.ebv(0., 0.)  # get map directory from SFD_DIR environment variable
+sfdmap.ebv(0., 0.)  # get map directory from SFD_DIR environment variable
 0.031818788521008
 
->>> sfdmap.ebv(0., 0., mapdir='/path/to/dust/files')
+sfdmap.ebv(0., 0., mapdir='/path/to/dust/files')
 0.031818788521008
 ```
 
@@ -123,13 +124,13 @@ example, the following code gets the extinction in magnitudes at RA,
 Dec = (0., 0.) and wavelengths (4000, 5000):
 
 ```python
->>> import extinction
+import extinction
 
->>> ebv = m.ebv(0., 0.)
+ebv = m.ebv(0., 0.)
 
->>> wave = np.array([4000., 5000.])
+wave = np.array([4000., 5000.])
 
->>> extinction.fitzpatrick99(wave, 3.1 * ebv)
+extinction.fitzpatrick99(wave, 3.1 * ebv)
 array([ 0.12074424,  0.09513746])
 ```
 
@@ -150,21 +151,21 @@ is far faster to pass latitute and longitude directly. This is particularly
 true for small numbers of coordinates or scalar coordinates:
 
 ```python
-In [1]: from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord
 
-In [2]: import sfdmap
+import sfdmap
 
-In [3]: m = sfdmap.SFDMap()
+ m = sfdmap.SFDMap()
 
-In [4]: m.ebv(0., 0.)  # evaluate once to trigger reading the FITS file
-Out[4]: 0.03181878852100873
+m.ebv(0., 0.)  # evaluate once to trigger reading the FITS file
+0.03181878852100873
 
-In [5]: coord = SkyCoord(0., 0., unit='degree')
+coord = SkyCoord(0., 0., unit='degree')
 
-In [6]: %timeit m.ebv(coord)  # time with SkyCoord object
+%timeit m.ebv(coord)  # time with SkyCoord object
 100 loops, best of 3: 18.1 ms per loop
 
-In [7]: %timeit m.ebv(0., 0., unit='degree')  # pass ra, dec directly
+%timeit m.ebv(0., 0., unit='degree')  # pass ra, dec directly
 10000 loops, best of 3: 80 µs per loop
 ```
 
