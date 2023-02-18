@@ -227,7 +227,7 @@ class SFDMap(object):
         self.mapdir = mapdir
 
         # don't load maps initially
-        self.fnames = {"north": north, "south": south}
+        self.fnames: Dict[str, str] = {"north": north, "south": south}
         self.hemispheres: Dict[str, Optional[_Hemisphere]] = {
             "north": None,
             "south": None,
@@ -338,9 +338,8 @@ class SFDMap(object):
                 fname = os.path.join(self.mapdir, self.fnames[pole])
                 self.hemispheres[pole] = _Hemisphere(fname, self.scaling)
 
-            # assert isinstance(self.hemispheres[pole], _Hemisphere)
-            half_sphere = self.hemispheres[pole]
-            if half_sphere is not None:
+            half_sphere = self.hemispheres[pole]  # mypy madness
+            if half_sphere is not None:  # mypy madness
                 values[mask] = half_sphere.ebv(l[mask], b[mask], interpolate)
 
         if return_scalar:
