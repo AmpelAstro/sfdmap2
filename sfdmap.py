@@ -10,6 +10,7 @@ import numpy as np
 # require a FITS reader of some sort.
 try:
     import fitsio
+
     getdata = fitsio.read
 except ImportError:
     try:
@@ -19,11 +20,13 @@ except ImportError:
         # is called. This is so that we can import the module with just numpy
         # installed (the minimum dependency).
         def getdata(*args, **kwargs):
-            raise ImportError("Could not import fitsio or astropy.io.fits. "
-                              "Install fitsio or astropy.")
+            raise ImportError(
+                "Could not import fitsio or astropy.io.fits. "
+                "Install fitsio or astropy."
+            )
 
 
-__all__ = ['SFDMap', 'ebv']
+__all__ = ["SFDMap", "ebv"]
 __version__ = "0.1.0"
 
 
@@ -35,6 +38,7 @@ def _isiterable(obj):
     except TypeError:
         return False
 
+
 # -----------------------------------------------------------------------------
 # Coordinate conversion
 #
@@ -44,32 +48,30 @@ def _isiterable(obj):
 # common static systems (IRCS, FK5J2000) by including a bit of code
 # from astropy.coordinates here.
 
+
 # Create rotation matrix about a given axis (x, y, z)
 def zrotmat(angle):
     s = np.sin(angle)
     c = np.cos(angle)
-    return np.array(((c, s, 0),
-                     (-s, c, 0),
-                     (0, 0, 1)))
+    return np.array(((c, s, 0), (-s, c, 0), (0, 0, 1)))
+
 
 def yrotmat(angle):
     s = np.sin(angle)
     c = np.cos(angle)
-    return np.array(((c, 0, -s),
-                     (0, 1, 0),
-                     (s, 0, c)))
+    return np.array(((c, 0, -s), (0, 1, 0), (s, 0, c)))
+
 
 def xrotmat(angle):
     s = np.sin(angle)
     c = np.cos(angle)
-    return np.array(((1, 0, 0),
-                     (0, c, s),
-                     (0, -s, c)))
+    return np.array(((1, 0, 0), (0, c, s), (0, -s, c)))
+
 
 # constant ICRS --> FK5J2000 (See USNO Circular 179, section 3.5)
-eta0 = np.deg2rad(-19.9 / 3600000.)
-xi0 = np.deg2rad(9.1 / 3600000.)
-da0 = np.deg2rad(-22.9 / 3600000.)
+eta0 = np.deg2rad(-19.9 / 3600000.0)
+xi0 = np.deg2rad(9.1 / 3600000.0)
+da0 = np.deg2rad(-22.9 / 3600000.0)
 ICRS_TO_FK5J2000 = np.dot(np.dot(xrotmat(-eta0), yrotmat(xi0)), zrotmat(da0))
 
 # FK5J2000 --> Gal
@@ -83,11 +85,12 @@ ICRS_TO_FK5J2000 = np.dot(np.dot(xrotmat(-eta0), yrotmat(xi0)), zrotmat(da0))
 ngp_fk5j2000_ra = np.deg2rad(192.8594812065348)
 ngp_fk5j2000_dec = np.deg2rad(27.12825118085622)
 lon0_fk5j2000 = np.deg2rad(122.9319185680026)
-FK5J2000_TO_GAL = np.dot(np.dot(zrotmat(np.pi - lon0_fk5j2000),
-                                yrotmat(np.pi/2. - ngp_fk5j2000_dec)),
-                         zrotmat(ngp_fk5j2000_ra))
+FK5J2000_TO_GAL = np.dot(
+    np.dot(zrotmat(np.pi - lon0_fk5j2000), yrotmat(np.pi / 2.0 - ngp_fk5j2000_dec)),
+    zrotmat(ngp_fk5j2000_ra),
+)
 
-# ICRS --> Gal: simply chain through FK5J2000 
+# ICRS --> Gal: simply chain through FK5J2000
 ICRS_TO_GAL = np.dot(FK5J2000_TO_GAL, ICRS_TO_FK5J2000)
 
 
@@ -100,7 +103,7 @@ def coords2cart(lon, lat):
 # [x, y, z] unit vector -> (lon, lat)
 def cart2coords(xyz):
     x, y, z = xyz
-    return np.arctan2(y, x), np.arctan2(z, np.sqrt(x*x + y*y))
+    return np.arctan2(y, x), np.arctan2(z, np.sqrt(x * x + y * y))
 
 
 def _icrs_to_gal(lon, lat):
@@ -115,6 +118,7 @@ def _fk5j2000_to_gal(lon, lat):
 # bilinear interpolation (because scipy.ndimage.map_coordinates is really slow
 # for this)
 
+
 def _bilinear_interpolate(data, y, x):
     yfloor = np.floor(y)
     xfloor = np.floor(x)
@@ -122,25 +126,28 @@ def _bilinear_interpolate(data, y, x):
     xw = x - xfloor
 
     # pixel locations
-    y0 = yfloor.astype(np.int)
+    y0 = yfloor.astype(int)
     y1 = y0 + 1
-    x0 = xfloor.astype(np.int)
+    x0 = xfloor.astype(int)
     x1 = x0 + 1
 
     # clip locations out of range
     ny, nx = data.shape
     y0 = np.maximum(y0, 0)
-    y1 = np.minimum(y1, ny-1)
+    y1 = np.minimum(y1, ny - 1)
     x0 = np.maximum(x0, 0)
-    x1 = np.minimum(x1, nx-1)
+    x1 = np.minimum(x1, nx - 1)
 
-    return ((1.0-xw) * (1.0-yw) * data[y0, x0] +
-            xw       * (1.0-yw) * data[y0, x1] + 
-            (1.0-xw) * yw       * data[y1, x0] +
-            xw       * yw       * data[y1, x1])   
+    return (
+        (1.0 - xw) * (1.0 - yw) * data[y0, x0]
+        + xw * (1.0 - yw) * data[y0, x1]
+        + (1.0 - xw) * yw * data[y1, x0]
+        + xw * yw * data[y1, x1]
+    )
 
 
 # -----------------------------------------------------------------------------
+
 
 class _Hemisphere(object):
     """Represents one of the hemispheres (in a single fle)"""
@@ -148,31 +155,38 @@ class _Hemisphere(object):
     def __init__(self, fname, scaling):
         self.data, header = getdata(fname, header=True)
         self.data *= scaling
-        self.crpix1 = header['CRPIX1']
-        self.crpix2 = header['CRPIX2']
-        self.lam_scal = header['LAM_SCAL']
-        self.sign = header['LAM_NSGP']  # north = 1, south = -1
-        
+        self.crpix1 = header["CRPIX1"]
+        self.crpix2 = header["CRPIX2"]
+        self.lam_scal = header["LAM_SCAL"]
+        self.sign = header["LAM_NSGP"]  # north = 1, south = -1
+
     def ebv(self, l, b, interpolate):
         # Project from galactic longitude/latitude to lambert pixels.
         # (See SFD98 or SFD data FITS header).
-        x = (self.crpix1 - 1.0 +
-             self.lam_scal * np.cos(l) *
-             np.sqrt(1.0 - self.sign * np.sin(b)))
-        y = (self.crpix2 - 1.0 -
-             self.sign * self.lam_scal * np.sin(l) *
-             np.sqrt(1.0 - self.sign * np.sin(b)))
-            
+        x = (
+            self.crpix1
+            - 1.0
+            + self.lam_scal * np.cos(l) * np.sqrt(1.0 - self.sign * np.sin(b))
+        )
+        y = (
+            self.crpix2
+            - 1.0
+            - self.sign
+            * self.lam_scal
+            * np.sin(l)
+            * np.sqrt(1.0 - self.sign * np.sin(b))
+        )
+
         # Get map values at these pixel coordinates.
         if interpolate:
             return _bilinear_interpolate(self.data, y, x)
         else:
-            x = np.round(x).astype(np.int)
-            y = np.round(y).astype(np.int)
+            x = np.round(x).astype(int)
+            y = np.round(y).astype(int)
 
             # some valid coordinates are right on the border (e.g., x/y = 4096)
-            x = np.clip(x, 0, self.data.shape[1]-1)
-            y = np.clip(y, 0, self.data.shape[0]-1) 
+            x = np.clip(x, 0, self.data.shape[1] - 1)
+            y = np.clip(y, 0, self.data.shape[0] - 1)
             return self.data[y, x]
 
 
@@ -206,18 +220,22 @@ class SFDMap(object):
         corresponding to recalibration from Schlafly & Finkbeiner (2011).
     """
 
-    def __init__(self, mapdir=None, north="SFD_dust_4096_ngp.fits",
-                 south="SFD_dust_4096_sgp.fits", scaling=0.86):
-
+    def __init__(
+        self,
+        mapdir=None,
+        north="SFD_dust_4096_ngp.fits",
+        south="SFD_dust_4096_sgp.fits",
+        scaling=0.86,
+    ):
         if mapdir is None:
-            mapdir = os.environ.get('SFD_DIR', '')
+            mapdir = os.environ.get("SFD_DIR", "")
         mapdir = os.path.expanduser(mapdir)
         mapdir = os.path.expandvars(mapdir)
         self.mapdir = mapdir
 
         # don't load maps initially
-        self.fnames = {'north': north, 'south': south}
-        self.hemispheres = {'north': None, 'south': None}
+        self.fnames = {"north": north, "south": south}
+        self.hemispheres = {"north": None, "south": None}
 
         self.scaling = scaling
 
@@ -261,13 +279,12 @@ class SFDMap(object):
         """
 
         # collect kwargs
-        frame = kwargs.get('frame', 'icrs')
-        unit = kwargs.get('unit', 'degree')
-        interpolate = kwargs.get('interpolate', True)
+        frame = kwargs.get("frame", "icrs")
+        unit = kwargs.get("unit", "degree")
+        interpolate = kwargs.get("interpolate", True)
 
         # compatibility: treat single argument 2-tuple as (RA, Dec)
-        if ((len(args) == 1) and (type(args[0]) is tuple) and
-            (len(args[0]) == 2)):
+        if (len(args) == 1) and (type(args[0]) is tuple) and (len(args[0]) == 2):
             args = args[0]
 
         if len(args) == 1:
@@ -277,34 +294,34 @@ class SFDMap(object):
                 l = coordinates.l.radian
                 b = coordinates.b.radian
             except AttributeError:
-                raise ValueError("single argument must be "
-                                 "astropy.coordinates.SkyCoord")
+                raise ValueError(
+                    "single argument must be " "astropy.coordinates.SkyCoord"
+                )
 
         elif len(args) == 2:
             lat, lon = args
 
             # convert to radians
-            if unit in ('deg', 'degree'):
+            if unit in ("deg", "degree"):
                 lat = np.deg2rad(lat)
                 lon = np.deg2rad(lon)
-            elif unit in ('rad', 'radian'):
+            elif unit in ("rad", "radian"):
                 pass
             else:
                 raise ValueError("unit not understood")
 
             # convert to galactic
-            if frame == 'icrs':
+            if frame == "icrs":
                 l, b = _icrs_to_gal(lat, lon)
-            elif frame == 'galactic':
+            elif frame == "galactic":
                 l, b = lat, lon
-            elif frame in ('fk5j2000', 'j2000'):
+            elif frame in ("fk5j2000", "j2000"):
                 l, b = _fk5j2000_to_gal(lat, lon)
             else:
                 raise ValueError("frame not understood")
 
         else:
             raise ValueError("too many arguments")
-
 
         # Check if l, b are scalar. If so, convert to 1-d arrays.
         return_scalar = False
@@ -316,7 +333,7 @@ class SFDMap(object):
         values = np.empty_like(l)
 
         # Treat north (b>0) separately from south (b<0).
-        for pole, mask in (('north', b >= 0), ('south', b < 0)):
+        for pole, mask in (("north", b >= 0), ("south", b < 0)):
             if not np.any(mask):
                 continue
 
@@ -325,8 +342,7 @@ class SFDMap(object):
                 fname = os.path.join(self.mapdir, self.fnames[pole])
                 self.hemispheres[pole] = _Hemisphere(fname, self.scaling)
 
-            values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask],
-                                                      interpolate)
+            values[mask] = self.hemispheres[pole].ebv(l[mask], b[mask], interpolate)
 
         if return_scalar:
             return values[0]
@@ -334,16 +350,18 @@ class SFDMap(object):
             return values
 
     def __repr__(self):
-        return ("SFDMap(mapdir={!r}, north={!r}, south={!r}, scaling={!r})"
-                .format(self.mapdir, self.fnames['north'],
-                        self.fnames['south'], self.scaling))
+        return "SFDMap(mapdir={!r}, north={!r}, south={!r}, scaling={!r})".format(
+            self.mapdir, self.fnames["north"], self.fnames["south"], self.scaling
+        )
 
 
 def ebv(*args, **kwargs):
     """Convenience function, equivalent to SFDMap().ebv(*args)"""
-    
-    m = SFDMap(mapdir=kwargs.get('mapdir', None),
-               north=kwargs.get('north', "SFD_dust_4096_ngp.fits"),
-               south=kwargs.get('south', "SFD_dust_4096_sgp.fits"),
-               scaling=kwargs.get('scaling', 0.86))
+
+    m = SFDMap(
+        mapdir=kwargs.get("mapdir", None),
+        north=kwargs.get("north", "SFD_dust_4096_ngp.fits"),
+        south=kwargs.get("south", "SFD_dust_4096_sgp.fits"),
+        scaling=kwargs.get("scaling", 0.86),
+    )
     return m.ebv(*args, **kwargs)
