@@ -5,7 +5,7 @@ name = "astropy"
 version = "5.2.1"
 description = "Astronomy and astrophysics core library"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "astropy-5.2.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:e0dad969b05f73f38714d2dede4445a9ce9cd5fa8386b7f1f3a3122d4574a115"},
@@ -413,7 +413,7 @@ name = "pyerfa"
 version = "2.0.0.1"
 description = "Python bindings for ERFA"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "pyerfa-2.0.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:278832de7803f2fb0ef4b14263200f98dfdb3eaa78dc63835d93796fd8fc42c6"},
@@ -483,7 +483,7 @@ name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.6"
 files = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
@@ -580,9 +580,9 @@ secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "ipaddress", "p
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [extras]
-fits = ["fitsio", "astropy"]
+fits = ["fitsio"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "72c738c3395eba6dd61a85673429be34bfc0ddd45cfb57e8d355887359f7bd9b"
+content-hash = "339a3124f1458de879cd79ab7d439f2eacc6ff212ad5aa5444bc92bcbad72335"
