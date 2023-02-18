@@ -305,6 +305,20 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "fitsio"
+version = "1.1.8"
+description = "A full featured python library to read from and write to FITS files."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "fitsio-1.1.8.tar.gz", hash = "sha256:61f569b2682a0cadce52c9653f0c9b81f951d000522cef645ce1cb49f78300f9"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "idna"
 version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -568,4 +582,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "69e6da0c3d427c87f6ab4afc4705f5690606e8b8b4c4d9266d677ca254c5d30f"
+content-hash = "ba9b02d4c7a2b7ddbc57e3102f86ecd49dab707e0bac33c790647efaa076243b"
