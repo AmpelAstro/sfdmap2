@@ -1,15 +1,15 @@
 # sfdmap2
 This is a fork of [sfdmap](https://github.com/kbarbary/sfdmap), as the original repository is no longer maintained.
 
-[![Build Status](https://img.shields.io/travis/kbarbary/sfdmap.svg?style=flat-square)](https://travis-ci.org/kbarbary/sfdmap)
-[![Coverage Status](http://img.shields.io/coveralls/kbarbary/sfdmap.svg?style=flat-square)](https://coveralls.io/r/kbarbary/sfdmap?branch=master)
-[![PyPI](https://img.shields.io/pypi/v/sfdmap.svg?style=flat-square)](https://pypi.python.org/pypi/sfdmap)
+[![Build Status](https://github.com/simeonreusch/sfdmap2/actions/workflows/continous_integration.yml/badge.svg)](https://github.com/simeonreusch/sfdmap2/actions/workflows/continous_integration.yml)
+[![Coverage Status](https://coveralls.io/repos/github/simeonreusch/sfdmap2/badge.svg?branch=main)](https://coveralls.io/github/simeonreusch/sfdmap2?branch=main)
+[![PyPI](https://img.shields.io/pypi/v/sfdmap2.svg?style=flat-square)](https://pypi.python.org/pypi/sfdmap2)
 
 A minimal, fast, MIT-licensed Python module for getting E(B-V) values from
 [Schlegel, Finkbeiner & Davis (1998)](http://adsabs.harvard.edu/abs/1998ApJ...500..525S) dust map FITS files.
 
 ```python
-import sfdmap
+from sfdmap2 import sfdmap
 
 m = sfdmap.SFDMap()
 
@@ -23,7 +23,7 @@ m.ebv(100., 40.)  # Get E(B-V) value at RA=100 degrees, Dec=40 degrees
 Requirements: numpy and a FITS reader (either fitsio or astropy).
 
 ```
-pip install sfdmap
+pip install sfdmap2
 ```
 
 The FITS files comprising the map must be downloaded separately. Among other
@@ -43,7 +43,7 @@ A directory "sfddata-master" will be created. Move or rename as you like.
 #### Initialize map:
 
 ```python
-import sfdmap
+from sfdmap2 import sfdmap
 
 m = sfdmap.SFDMap('/path/to/dustmap/files')
 m = sfdmap.SFDMap()  # get directory from SFD_DIR environment variable
@@ -153,9 +153,9 @@ true for small numbers of coordinates or scalar coordinates:
 ```python
 from astropy.coordinates import SkyCoord
 
-import sfdmap
+from sfdmap2 import sfdmap
 
- m = sfdmap.SFDMap()
+m = sfdmap.SFDMap()
 
 m.ebv(0., 0.)  # evaluate once to trigger reading the FITS file
 0.03181878852100873
