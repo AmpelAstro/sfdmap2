@@ -286,7 +286,9 @@ class SFDMap(object):
         if len(args) == 1:
             # treat object as an astropy.coordinates.SkyCoords
             try:
-                coordinates = args[0].galactic
+                from astropy.coordinates import SkyCoords  # type: ignore
+
+                coordinates: SkyCoords = args[0].galactic
                 l = coordinates.l.radian
                 b = coordinates.b.radian
             except AttributeError:
