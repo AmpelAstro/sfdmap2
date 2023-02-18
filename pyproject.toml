@@ -13,8 +13,11 @@ maintainers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 numpy = "^1.24.2"
-astropy = "^5.2.1"
-fitsio = "^1.1.8"
+astropy = {version="^5.2.1", optional=true}
+fitsio = {version="^1.1.8", optional=true}
+
+[tool.poetry.extras]
+fits = ["fitsio", "astropy"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
