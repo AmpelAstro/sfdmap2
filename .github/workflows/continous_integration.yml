@@ -50,7 +50,6 @@ jobs:
 
       # Runs all tests in the 'tests' directory and gets coverage
       - name: Test the code
-        env:
         run: |
           poetry run coverage run -m pytest -v 
 
