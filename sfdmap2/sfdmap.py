@@ -247,10 +247,10 @@ class SFDMap(object):
         Parameters
         ----------
 
-        coordinates or ra, dec: SkyCoords or numpy.ndarray
+        coordinates or ra, dec: SkyCoord or numpy.ndarray
 
             If one argument is passed, assumed to be a
-            `astropy.coordinates.SkyCoords` instance. In this case,
+            `astropy.coordinates.SkyCoord` instance. In this case,
             the ``frame`` and ``unit`` keyword arguments are
             ignored. If two arguments are passed, they are treated as
             ``latitute, longitude`` (can be scalars or arrays).  In
@@ -290,16 +290,16 @@ class SFDMap(object):
             args = args[0]
 
         if len(args) == 1:
-            # treat object as an astropy.coordinates.SkyCoords object
+            # treat object as an astropy.coordinates.SkyCoord object
             try:
-                from astropy.coordinates import SkyCoords  # type: ignore
+                from astropy.coordinates import SkyCoord  # type: ignore
 
-                coordinates: SkyCoords = args[0].galactic
+                coordinates: SkyCoord = args[0].galactic
                 l = coordinates.l.radian
                 b = coordinates.b.radian
             except AttributeError:
                 raise ValueError(
-                    "single argument must be of type astropy.coordinates.SkyCoords"
+                    "single argument must be of type astropy.coordinates.SkyCoord"
                 )
 
         elif len(args) == 2:
@@ -327,7 +327,7 @@ class SFDMap(object):
 
         else:
             raise ValueError(
-                "too many arguments. Either provide an astropy SkyCoords object or two floats [RA, Dec]"
+                "too many arguments. Either provide an astropy SkyCoord object or two floats [RA, Dec]"
             )
 
         # Check if l, b are scalar. If so, convert to 1-d arrays.
