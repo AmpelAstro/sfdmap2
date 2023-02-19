@@ -241,7 +241,7 @@ class SFDMap(object):
         Parameters
         ----------
 
-        coordinates or ra, dec: SkyCoord or numpy.ndarray
+        coordinates or ra, dec: SkyCoords or numpy.ndarray
 
             If one argument is passed, assumed to be a
             `astropy.coordinates.SkyCoords` instance. In this case,
@@ -293,11 +293,12 @@ class SFDMap(object):
                 b = coordinates.b.radian
             except AttributeError:
                 raise ValueError(
-                    "single argument must be " "astropy.coordinates.SkyCoord"
+                    "single argument must be " "astropy.coordinates.SkyCoords"
                 )
 
         elif len(args) == 2:
-            lat, lon = args
+            lat: float = args[0]
+            lon: float = args[1]
 
             # convert to radians
             if unit in ("deg", "degree"):
@@ -319,7 +320,9 @@ class SFDMap(object):
                 raise ValueError("frame not understood")
 
         else:
-            raise ValueError("too many arguments")
+            raise ValueError(
+                "too many arguments. Either provide an astropy SkyCoords object or two floats [RA, Dec]"
+            )
 
         # Check if l, b are scalar. If so, convert to 1-d arrays.
         return_scalar = False
