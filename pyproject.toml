@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sfdmap2"
-version = "0.2.1"
+version = "0.2.2"
 description = "Get E(B-V) values from SFD dust map data"
 authors = ["Kyle Barbary"]
 license = "BSD-3-Clause"
