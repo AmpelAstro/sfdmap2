@@ -88,7 +88,9 @@ ICRS_TO_GAL = np.dot(FK5J2000_TO_GAL, ICRS_TO_FK5J2000)
 
 
 # (lon, lat) -> [x, y, z] unit vector
-def coords2cart(lon: float, lat: float) -> np.ndarray:
+def coords2cart(
+    lon: Union[float, np.ndarray], lat: Union[float, np.ndarray]
+) -> np.ndarray:
     coslat = np.cos(lat)
     return np.array((coslat * np.cos(lon), coslat * np.sin(lon), np.sin(lat)))
 
@@ -99,11 +101,15 @@ def cart2coords(xyz: Tuple[float, float, float]) -> Tuple[np.ndarray, np.ndarray
     return np.arctan2(y, x), np.arctan2(z, np.sqrt(x * x + y * y))
 
 
-def _icrs_to_gal(lon: float, lat: float) -> Tuple[np.ndarray, np.ndarray]:
+def _icrs_to_gal(
+    lon: Union[float, np.ndarray], lat: Union[float, np.ndarray]
+) -> Tuple[np.ndarray, np.ndarray]:
     return cart2coords(np.dot(ICRS_TO_GAL, coords2cart(lon, lat)))
 
 
-def _fk5j2000_to_gal(lon: float, lat: float) -> Tuple[np.ndarray, np.ndarray]:
+def _fk5j2000_to_gal(
+    lon: Union[float, np.ndarray], lat: Union[float, np.ndarray]
+) -> Tuple[np.ndarray, np.ndarray]:
     return cart2coords(np.dot(FK5J2000_TO_GAL, coords2cart(lon, lat)))
 
 
@@ -148,10 +154,10 @@ class _Hemisphere(object):
     def __init__(self, fname: str, scaling: float):
         self.data, header = getdata(fname, header=True)
         self.data *= scaling
-        self.crpix1 = header["CRPIX1"]
-        self.crpix2 = header["CRPIX2"]
-        self.lam_scal = header["LAM_SCAL"]
-        self.sign = header["LAM_NSGP"]  # north = 1, south = -1
+        self.crpix1: float = header["CRPIX1"]
+        self.crpix2: float = header["CRPIX2"]
+        self.lam_scal: float = header["LAM_SCAL"]
+        self.sign: int = header["LAM_NSGP"]  # north = 1, south = -1
 
     def ebv(self, l: float, b: float, interpolate: bool) -> np.ndarray:
         # Project from galactic longitude/latitude to lambert pixels.
@@ -284,7 +290,7 @@ class SFDMap(object):
             args = args[0]
 
         if len(args) == 1:
-            # treat object as an astropy.coordinates.SkyCoords
+            # treat object as an astropy.coordinates.SkyCoords object
             try:
                 from astropy.coordinates import SkyCoords  # type: ignore
 
@@ -293,12 +299,12 @@ class SFDMap(object):
                 b = coordinates.b.radian
             except AttributeError:
                 raise ValueError(
-                    "single argument must be " "astropy.coordinates.SkyCoords"
+                    "single argument must be of type astropy.coordinates.SkyCoords"
                 )
 
         elif len(args) == 2:
-            lat: float = args[0]
-            lon: float = args[1]
+            lat: Union[float, np.ndarray] = args[0]
+            lon: Union[float, np.ndarray] = args[1]
 
             # convert to radians
             if unit in ("deg", "degree"):
