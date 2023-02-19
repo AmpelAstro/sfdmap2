@@ -53,8 +53,8 @@ jobs:
         run: |
           poetry run coverage run -m pytest -v 
 
-      # - name: mypy
-      #   run: poetry run mypy planobs
+      - name: mypy
+        run: poetry run mypy sfdmap2
 
       # Push the coverage result to coveralls.io
       - name: Run Coveralls
