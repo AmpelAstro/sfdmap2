@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "github>AmpelProject/renovate-config",
+    "github>AmpelProject/renovate-config//regexManagers/githubActionsVersions"
+  ]
+}
