@@ -11,7 +11,7 @@ maintainers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 numpy = "*"
 astropy = ">=5"
 fitsio = {version="^1", optional=true}
