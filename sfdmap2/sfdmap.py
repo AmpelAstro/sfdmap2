@@ -18,7 +18,7 @@ try:
 except ImportError:
     try:
         from astropy.io.fits import getdata  # type: ignore
-    except ImportError:
+    except ImportError:  # pragma: no cover
         # If we don't have either reader, raise an error only when the function
         # is called. This is so that we can import the module with just numpy
         # installed (the minimum dependency).
