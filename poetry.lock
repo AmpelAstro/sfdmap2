@@ -681,4 +681,4 @@ fits = ["fitsio"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "48076a34a1a06106577a217b9e0fc6ea981399811e0fef25168d384fa128fc8e"
+content-hash = "0c7560ebdcbe0e4e21f1203f4bf4f81e61cb5a07aef467d21f2047925ea014d2"
