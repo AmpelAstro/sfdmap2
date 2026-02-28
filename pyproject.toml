@@ -21,8 +21,8 @@ fits = ["fitsio"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
-coveralls = {version = "^4.0.0", python = "<3.13"}
-mypy = "^1.0.1"
+coveralls = {version = "^4.1.0", python = "<3.13"}
+mypy = "^1.19.1"
 
 [build-system]
 requires = ["poetry-core"]
