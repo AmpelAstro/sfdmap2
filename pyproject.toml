@@ -22,7 +22,7 @@ fits = ["fitsio"]
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.3"
 coveralls = {version = "^4.1.0", python = "<3.13"}
-mypy = "^1.20.2"
+mypy = "^2.1.0"
 
 [build-system]
 requires = ["poetry-core"]
